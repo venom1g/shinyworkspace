@@ -8,6 +8,58 @@
 
 set -e # Exit on error
 
+# --- Revert Logic ---
+revert_changes() {
+    echo "🔄 Reverting changes..."
+
+    # 1. Remove Neovim PPA
+    echo "🗑️ Removing Neovim PPA..."
+    sudo add-apt-repository --remove ppa:neovim-ppa/unstable -y || true
+
+    # 2. Uninstall Packages
+    echo "📦 Uninstalling system dependencies..."
+    sudo apt-get remove --purge -y \
+        neovim tmux zsh fontconfig \
+        ripgrep fd-find xclip wl-clipboard \
+        build-essential unzip git curl \
+        software-properties-common || true
+    sudo apt-get autoremove -y || true
+
+    # 3. Remove Neovim Config & Data
+    echo "🌙 Cleaning up Neovim..."
+    rm -rf ~/.config/nvim ~/.local/share/nvim ~/.local/state/nvim ~/.cache/nvim
+
+    # 4. Remove Tmux Config & Plugins
+    echo "🪟 Cleaning up Tmux..."
+    rm -rf ~/.tmux ~/.tmux.conf
+
+    # 5. Remove Fonts
+    echo "🔡 Removing Nerd Fonts..."
+    rm -rf ~/.local/share/fonts/JetBrainsMono*
+    fc-cache -fv || true
+
+    # 6. Remove Zsh/Oh My Zsh
+    echo "🐚 Cleaning up Zsh..."
+    rm -rf ~/.oh-my-zsh
+    
+    # Remove the block from .zshrc
+    if [ -f ~/.zshrc ]; then
+        sed -i '/# SHINY_WORKSPACE_START/,/# SHINY_WORKSPACE_END/d' ~/.zshrc
+    fi
+
+    # 7. Clean up Bin
+    rm -f ~/.local/bin/fd
+    rm -f ~/.local/bin/nvim
+
+    echo "✅ Revert Finished! Note: You may need to manually change your default shell back if you changed it."
+    exit 0
+}
+
+# Check for revert flag
+if [[ "$1" == "--revert" ]]; then
+    revert_changes
+fi
+
 echo "🚀 Starting Workspace Installation..."
 
 # 1. Update and Install System Dependencies
@@ -124,9 +176,9 @@ git clone https://github.com/zsh-users/zsh-autosuggestions $ZSH_CUSTOM/plugins/z
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $ZSH_CUSTOM/plugins/zsh-syntax-highlighting || true
 
 # Update .zshrc
-sed -i 's/plugins=(git)/plugins=(git zsh-autosuggestions zsh-syntax-highlighting)/' ~/.zshrc
-
 cat << 'EOF' >> ~/.zshrc
+
+# SHINY_WORKSPACE_START
 # Optimized Aliases & Paths
 alias ll='ls -alF'
 alias la='ls -A'
@@ -140,7 +192,11 @@ if [ -d "$HOME/.nvm" ]; then
     node() { unset -f nvm node npm; [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"; node "$@"; }
     npm() { unset -f nvm node npm; [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"; npm "$@"; }
 fi
+# SHINY_WORKSPACE_END
 EOF
+
+# Add plugins to .zshrc if not already there
+sed -i 's/plugins=(git)/plugins=(git zsh-autosuggestions zsh-syntax-highlighting)/' ~/.zshrc
 
 echo "✅ Installation Finished!"
 echo "👉 Run 'zsh' to enter your new shell."
