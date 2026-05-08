@@ -13,6 +13,9 @@ echo "🚀 Starting Workspace Installation..."
 # 1. Update and Install System Dependencies
 echo "📦 Installing system dependencies..."
 sudo apt-get update
+sudo apt-get install -y software-properties-common
+sudo add-apt-repository ppa:neovim-ppa/unstable -y
+sudo apt-get update
 sudo apt-get install -y \
     curl git unzip build-essential \
     ripgrep fd-find xclip wl-clipboard \
