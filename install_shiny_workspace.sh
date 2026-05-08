@@ -16,14 +16,11 @@ sudo apt-get update
 sudo apt-get install -y \
     curl git unzip build-essential \
     ripgrep fd-find xclip wl-clipboard \
-    zsh tmux fontconfig
+    zsh tmux fontconfig neovim
 
-# 2. Install Neovim (Latest AppImage)
-echo "🌙 Installing Neovim (Latest Stable)..."
+# 2. Setup Additional Utils
+echo "🛠️ Setting up additional utilities..."
 mkdir -p ~/.local/bin
-curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.appimage
-chmod +x nvim-linux-x86_64.appimage
-mv nvim-linux-x86_64.appimage ~/.local/bin/nvim
 ln -sf /usr/bin/fdfind ~/.local/bin/fd
 
 # 3. Install JetBrains Mono Nerd Font
