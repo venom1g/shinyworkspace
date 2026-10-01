@@ -131,11 +131,6 @@ set -g pane-base-index 1
 set-window-option -g pane-base-index 1
 set-option -g renumber-windows on
 
-# Set prefix to Ctrl-Space
-unbind C-b
-set -g prefix C-Space
-bind C-Space send-prefix
-
 # Plugins
 set -g @plugin 'tmux-plugins/tpm'
 set -g @plugin 'tmux-plugins/tmux-sensible'
