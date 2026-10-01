@@ -94,6 +94,13 @@ rm -rf ~/.config/nvim ~/.local/share/nvim ~/.local/state/nvim ~/.cache/nvim
 git clone https://github.com/LazyVim/starter ~/.config/nvim
 rm -rf ~/.config/nvim/.git
 
+# Debian/Ubuntu ship the bundled treesitter parsers (vimdoc, lua, ...) under the
+# multiarch dir /usr/lib/<arch>/nvim, which lazy.nvim drops when it resets the rtp.
+# Without this, plugin installs fail with: No parser for language "vimdoc"
+sed -i 's|^\(\s*\)rtp = {$|&\n\1  paths = vim.fn.glob("/usr/lib/*/nvim", false, true),|' ~/.config/nvim/lua/config/lazy.lua
+grep -q 'paths = vim.fn.glob("/usr/lib/\*/nvim"' ~/.config/nvim/lua/config/lazy.lua \
+    || echo "⚠️ Could not patch lazy.lua rtp paths; you may see 'No parser for language \"vimdoc\"'."
+
 # Create the custom lualine config to remove the clock (as we moved it to tmux)
 mkdir -p ~/.config/nvim/lua/plugins
 cat << 'EOF' > ~/.config/nvim/lua/plugins/lualine.lua
